@@ -145,7 +145,8 @@ function panda() {
 	if [ "$1" = "gc" ]; then
 cat > index.js << END_TEXT
 import React, { Component } from "react";
-import { styles } from "./style";
+import { connect } from "react-redux";
+import {  } from "./style";
 
 class $name extends Component {
   render() {
@@ -153,16 +154,23 @@ class $name extends Component {
   }
 }
 
-export default $name;
+const mapStateToProps = state => {
+  return {};
+};
+
+const mapDispatchToProps = dispatch => {
+  return {};
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)($name);
 
 END_TEXT
 
 cat > style.js << END_TEXT
 import styled from "styled-components";
-
-export const styles = {
-    
-};
 
 END_TEXT
 	echo $name "is generated successfully."
