@@ -253,7 +253,7 @@ END_TEXT
 	echo $name "is generated successfully."
 	fi
 
-	cd ../../../
+	cd ../../../..
 }
 
 
