@@ -176,6 +176,80 @@ cat > style.js << END_TEXT
 import styled from "styled-components";
 
 END_TEXT
+
+	mkdir store
+	cd store
+
+cat > index.js << END_TEXT
+import reducer from "./reducer";
+import saga from "./saga";
+import * as actionCreators from "./actionCreator";
+import * as actionTypes from "./actionType";
+
+export { reducer, saga, actionCreators, actionTypes };
+
+
+END_TEXT
+
+cat > actionType.js << END_TEXT
+export const FOO = "header/FOO";
+
+END_TEXT
+
+cat > reducer.js << END_TEXT
+import * as actionTypes from "./actionType";
+
+const defaultState = {};
+
+export default (state = defaultState, action) => {
+  switch (action.type) {
+    case actionTypes.FOO:
+      return state;
+    default:
+      return state;
+  }
+};
+
+END_TEXT
+
+cat > saga.js << END_TEXT
+import { put, takeEvery } from 'redux-saga/effects';
+import * as actionTypes from "./actionType";
+
+function* foo(action) {
+  try {
+    console.log('saga:', action.type);
+    yield put({
+      type: 'RESULT',
+      data: 'Saga Redux Demo'
+    });
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function* saga() {
+  yield takeEvery(
+    action => action.type === actionTypes.FOO,
+    foo
+  );
+}
+
+export default saga;
+
+
+END_TEXT
+
+cat > actionCreator.js << END_TEXT
+import * as actionTypes from './actionType';
+
+export const foo = () => ({
+    type: actionTypes.FOO
+}); 
+
+END_TEXT
+
 	echo $name "is generated successfully."
 	fi
 
