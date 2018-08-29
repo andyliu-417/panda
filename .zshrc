@@ -133,6 +133,7 @@ function gBranch() {
 
 alias hplerna='hp&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm -rf&&npm cache clean --force&&sleep 3&&lerna bootstrap'
 
+
 alias panda='panda $1 $2 $3'
 function panda() {
 	str="$2"
@@ -141,16 +142,31 @@ function panda() {
 	upperFirst=`echo "$first" | tr a-z A-Z`
 	name="$upperFirst$rest"
 
+	
 	if [ "$1" = "gc" ]; then
-	  cd src/components
+	  	cd src/components
   elif [ "$1" = "gp" ]; then
-    cd src/pages
+    	cd src/pages
+  elif [ "$1" = "rc" ]; then
+      cd src/components
+      rm -rf $str
+      cd ../../
+      return
+  elif [ "$1" = "rp" ]; then
+      cd src/pages
+      rm -rf $str
+      cd ../../
+      return
   fi
+
 
 	mkdir $name
 	cd $name
 
-	# if [ "$1" = "gc" ]; then
+	typeEcho=`echo $name"_FOO"`
+	type="$typeEcho"
+
+
 cat > index.js << END_TEXT
 import React, { Component } from "react";
 import { connect } from "react-redux";
@@ -197,7 +213,8 @@ export { reducer, saga, actionCreators, actionTypes };
 END_TEXT
 
 cat > actionType.js << END_TEXT
-export const FOO = "header/FOO";
+// export const FOO = "$type";
+
 
 END_TEXT
 
@@ -207,10 +224,10 @@ import * as actionTypes from "./actionType";
 const defaultState = {};
 
 const reducer_handlers = {
-  [actionTypes.FOO]: (state, action) => {
-    console.log("reducer:", action.type);
-    return state;
-  }
+  // [actionTypes.FOO]: (state, action) => {
+  //   console.log("reducer:", action.type);
+  //   return state;
+  // }
 };
 
 export default (state = defaultState, action) => {
@@ -229,16 +246,14 @@ import { put, takeEvery, all, call } from "redux-saga/effects";
 import * as actionTypes from "./actionType";
 
 const saga_handlers = {
-  [actionTypes.FOO]: function*(action) {
-    try {
-      console.log("saga:", action);
-      yield put({
-
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
+  // [actionTypes.FOO]: function*(action) {
+  //   try {
+  //     console.log("saga:", action);
+  //     yield put({});
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
 };
 
 function* saga() {
@@ -262,9 +277,9 @@ END_TEXT
 cat > actionCreator.js << END_TEXT
 import * as actionTypes from './actionType';
 
-export const foo = () => ({
-    type: actionTypes.FOO
-}); 
+// export const foo = () => ({
+//     type: actionTypes.FOO
+// }); 
 
 END_TEXT
 
