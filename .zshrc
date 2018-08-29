@@ -141,11 +141,16 @@ function panda() {
 	upperFirst=`echo "$first" | tr a-z A-Z`
 	name="$upperFirst$rest"
 
-	cd src/components
+	if [ "$1" = "gc" ]; then
+	  cd src/components
+  elif [ "$1" = "gp" ]; then
+    cd src/pages
+  fi
+
 	mkdir $name
 	cd $name
 
-	if [ "$1" = "gc" ]; then
+	# if [ "$1" = "gc" ]; then
 cat > index.js << END_TEXT
 import React, { Component } from "react";
 import { connect } from "react-redux";
@@ -228,7 +233,7 @@ const saga_handlers = {
     try {
       console.log("saga:", action);
       yield put({
-        
+
       });
     } catch (e) {
       console.log(e);
@@ -264,7 +269,7 @@ export const foo = () => ({
 END_TEXT
 
 	echo $name "is generated successfully."
-	fi
+	# fi
 
 	cd ../../../..
 }
