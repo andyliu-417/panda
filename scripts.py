@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 
 base_path = sys.argv[1]
 operation = sys.argv[2][0]
@@ -20,8 +21,11 @@ def main():
             print("Store is updated successfully.")
         elif operation == 'r':
             print("Start removing...")
-            # command = "cd src/components"
-            # os.system(command)
+            shutil.rmtree(get_folder_path()) 
+            print(class_name, "is removed successfully.")
+            stores = getAllStores()
+            updateStore(stores)
+            print("Store is updated successfully.")
         
     except Exception as e:
         print("operation fails:", e)
