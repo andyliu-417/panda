@@ -50,6 +50,7 @@ def index():
     file_path = os.path.join(folder_path, "index.js")
     template = """import React, {{ Component }} from "react";
 import {{ connect }}from "react-redux";
+import {{ actionCreators, selectors }} from "./store";
 import {{}} from "./style";
 
 class {class_name} extends Component {{
@@ -60,7 +61,7 @@ class {class_name} extends Component {{
 
 const mapStateToProps = state => {{
   return {{
-      // foo: state.getIn(["Header", "key"])
+      // foo: selectors.fooSelector(state)
   }};
 }};
 
@@ -99,6 +100,7 @@ def store():
     flush_saga(store_folder)
     flush_creator(store_folder)
     flush_type(store_folder)
+    flush_selector(store_folder)
     print(store_folder, "is successful.")
 
 def flush_index(folder_path):
@@ -108,8 +110,9 @@ def flush_index(folder_path):
 import saga from "./saga";
 import * as actionCreators from "./actionCreator";
 import * as actionTypes from "./actionType";
+import * as selectors from './selectors';
 
-export { reducer, saga, actionCreators, actionTypes };
+export { reducer, saga, actionCreators, actionTypes, selectors };
 
 """
     with open(file_path, "w") as file:
@@ -198,6 +201,21 @@ def flush_type(folder_path):
 """
     context = {
         "name": name
+    }
+    with open(file_path, "w") as file:
+        file.write(template.format(**context))
+
+def flush_selector(folder_path):
+    file_path = os.path.join(folder_path, "selectors.js")
+
+    template = """import {{ createSelector }} from "reselect";
+    
+// const selectFoo = state => state.getIn(['{class_name}', 'foo']);
+// export const fooSelector = createSelector(selectFoo, item => item);
+
+"""
+    context = {
+        "class_name": class_name
     }
     with open(file_path, "w") as file:
         file.write(template.format(**context))
