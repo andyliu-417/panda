@@ -48,12 +48,12 @@ def index():
     os.makedirs(folder_path)
 
     file_path = os.path.join(folder_path, "index.js")
-    template = """import React, {{ Component }} from "react";
+    template = """import React, {{ PureComponent }} from "react";
 import {{ connect }}from "react-redux";
 import {{ actionCreators, selectors }} from "./store";
 import {{}} from "./style";
 
-class {class_name} extends Component {{
+class {class_name} extends PureComponent {{
   render() {{
     return <div>{class_name}</div>;
   }}
@@ -209,7 +209,7 @@ def flush_selector(folder_path):
     file_path = os.path.join(folder_path, "selectors.js")
 
     template = """import {{ createSelector }} from "reselect";
-    
+
 // const selectFoo = state => state.getIn(['{class_name}', 'foo']);
 // export const fooSelector = createSelector(selectFoo, item => item);
 
