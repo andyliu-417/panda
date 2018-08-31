@@ -59,7 +59,9 @@ class {class_name} extends Component {{
 }}
 
 const mapStateToProps = state => {{
-  return {{}};
+  return {{
+      // foo: state.getIn(["Header", "key"])
+  }};
 }};
 
 const mapDispatchToProps = dispatch => {{
@@ -117,13 +119,14 @@ def flush_reducer(folder_path):
     file_path = os.path.join(folder_path, "reducer.js")
 
     template = """import * as actionTypes from "./actionType";
+import { fromJS } from "immutable";
 
-const defaultState = {};
+const defaultState = fromJS({});
 
 const reducer_handlers = {
   // [actionTypes.FOO]: (state, action) => {
   //   console.log("reducer:", action.type);
-  //   return state;
+  //   return state.set("key", val);
   // }
 };
 
