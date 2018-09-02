@@ -135,7 +135,7 @@ alias hplerna='hp&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm
 
 alias panda='panda $1 $2'
 function panda() {
-  python3 ~/.scripts.py $(pwd) $1 $2
-  # python3 ~/repos/panda/src/scripts.py $(pwd) $1 $2
+  # python3 ~/.scripts.py $(pwd) $1 $2
+  python3 ~/repos/panda/scripts.py $(pwd) $1 $2
 
 }
