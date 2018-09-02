@@ -28,6 +28,8 @@ def main():
             stores = get_all_stores()
             updateStore(stores)
             print("Store is updated successfully.")
+            import_all()
+            print("import successfully.")
 
     except Exception as e:
         print("operation fails:", e)
