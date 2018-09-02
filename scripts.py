@@ -7,6 +7,11 @@ operation = sys.argv[2][0]
 folder = sys.argv[2][-1]
 name = sys.argv[3]
 class_name = name.capitalize()
+style_name = ''
+tag_name = ''
+if len(sys.argv) > 4:
+    style_name = sys.argv[4]
+    tag_name = sys.argv[5]
 
 def main():
     try:
@@ -30,10 +35,22 @@ def main():
             print("Store is updated successfully.")
             import_all()
             print("import update successfully.")
+        elif operation == 's':
+            print("Start generating...")
+            generate_style()
+            print(style_name, "is generated successfully.")
 
     except Exception as e:
         print("operation fails:", e)
 
+
+def generate_style():
+    folder_path = get_folder_path()
+    file_path = os.path.join(folder_path, "style.js")
+    with open(file_path, "a") as file:
+        line = 'export const {} = styled.{}`\n\n'.format(style_name, tag_name)
+        file.write(line)
+        file.write('`;\n\n')
 
 def get_src_folder_path():
     return os.path.join(base_path, "src")
@@ -48,6 +65,9 @@ def get_folder_path():
         folder_name = "src/components/" + class_name
     elif folder == 'p':
         folder_name = "src/pages/" + class_name
+    elif folder == 's':
+        stores = get_all_stores()
+        folder_name = "src/" + stores[class_name] + "/" + class_name
     return os.path.join(base_path, folder_name)
 
 
@@ -102,7 +122,7 @@ export default connect(
 def styled():
     folder_path = get_folder_path()
     file_path = os.path.join(folder_path, "style.js")
-    content = 'import styled from "styled-components";\n'
+    content = 'import styled from "styled-components";\n\n'
     with open(file_path, "w") as file:
         file.write(content)
     print(file_path, "is successful.")
