@@ -29,7 +29,7 @@ def main():
             updateStore(stores)
             print("Store is updated successfully.")
             import_all()
-            print("import successfully.")
+            print("import update successfully.")
 
     except Exception as e:
         print("operation fails:", e)
@@ -250,7 +250,6 @@ def get_all_components():
     for component in os.listdir("./src/components"):
         if os.path.isdir(os.path.join('./src/components', component)):
             components.append(component)
-    print("components:", components)
     return components
 
 
@@ -259,7 +258,6 @@ def get_all_pages():
     for page in os.listdir("./src/pages"):
         if os.path.isdir(os.path.join('./src/pages', page)):
             pages.append(page)
-    print("pages:", pages)
     return pages
 
 
