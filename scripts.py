@@ -46,35 +46,60 @@ def main():
 
 
 def generate_style():
+    contents = []
+
     folder_path = get_folder_path()
     file_path = os.path.join(folder_path, "style.js")
-    index = 0
-    contents = []
+
+    with open(file_path, "a") as file:
+        template = '''export const {style_name} = styled.{tag_name}`\n
+`;\n\n'''
+        context = {
+            "style_name": style_name,
+            "tag_name": tag_name
+        }
+        file.write(template.format(**context))
+    
     with open(file_path, "r") as file:
         contents = file.readlines()
     
+    styles = get_styles(contents)
+
+
+    file_path = os.path.join(folder_path, "index.js")
+    with open(file_path, "r") as file:
+        contents = file.readlines()
+    
+    style_line = ''
     for idx, line in enumerate(contents):
-        if line.strip().startswith("export"):
-            index = idx
+        if "./style" in line.strip():
+            if line.strip().startswith('import'):
+                style_line = 'import { '
+                style_line += ', '.join(styles)
+                style_line += ' } from "./style";\n'
+                contents[idx] = style_line
+            else:
+                contents[idx-1] = contents[idx-1][:-1]+',\n'
+                contents.insert(idx, '  '+styles[-1]+',\n')
+                print(contents[idx])
             break
-
-    line = 'const {} = styled.{}`\n'.format(style_name, tag_name)
-    contents.insert(index, line)
-    line = '`;\n\n'
-    contents.insert(index+1, line)
-    line = '    {},\n'.format(style_name)
-    contents.insert(-1, line)
-
+    
     with open(file_path, "w") as file:
         file.writelines(contents)
+
+def get_styles(contents):
+    styles = []
+    for line in contents:
+        if line.strip().startswith("export"):
+            words = line.split(' ');
+            styles.append(words[2])
+    return styles
 
 def get_src_folder_path():
     return os.path.join(base_path, "src")
 
-
 def get_store_folder_path():
     return os.path.join(get_src_folder_path(), "store")
-
 
 def get_folder_path():
     if folder == 'c':
@@ -86,14 +111,11 @@ def get_folder_path():
         folder_name = "src/" + stores[class_name] + "/" + class_name
     return os.path.join(base_path, folder_name)
 
-
 def get_components_folder_path():
     return os.path.join(base_path, "src/components/")
 
-
 def get_pages_folder_path():
     return os.path.join(base_path, "src/pages/")
-
 
 def index():
     folder_path = get_folder_path()
@@ -103,7 +125,7 @@ def index():
     template = """import React, {{ PureComponent }} from "react";
 import {{ connect }}from "react-redux";
 import {{ actionCreators, selectors }} from "./store";
-import {{ styles as s }} from "./style";
+import {{ }} from "./style";
 
 class {class_name} extends PureComponent {{
   render() {{
@@ -120,6 +142,7 @@ const mapStateToProps = state => {{
 const mapDispatchToProps = dispatch => {{
   return {{}};
 }};
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps
@@ -134,18 +157,13 @@ export default connect(
         file.write(template.format(**context))
     print(file_path, "is successful.")
 
-
 def styled():
     folder_path = get_folder_path()
     file_path = os.path.join(folder_path, "style.js")
-    content = """import styled from "styled-components";\n
-export const styles = { 
-};
-"""
+    content = 'import styled from "styled-components";\n\n'
     with open(file_path, "w") as file:
         file.write(content)
     print(file_path, "is successful.")
-
 
 def store():
     folder_path = get_folder_path()
