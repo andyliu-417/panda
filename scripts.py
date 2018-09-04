@@ -13,6 +13,7 @@ if len(sys.argv) > 4:
     style_name = sys.argv[4]
     tag_name = sys.argv[5]
 
+
 def main():
     try:
         if operation == 'g':
@@ -47,10 +48,25 @@ def main():
 def generate_style():
     folder_path = get_folder_path()
     file_path = os.path.join(folder_path, "style.js")
-    with open(file_path, "a") as file:
-        line = 'export const {} = styled.{}`\n\n'.format(style_name, tag_name)
-        file.write(line)
-        file.write('`;\n\n')
+    index = 0
+    contents = []
+    with open(file_path, "r") as file:
+        contents = file.readlines()
+    
+    for idx, line in enumerate(contents):
+        if line.strip().startswith("export"):
+            index = idx
+            break
+
+    line = 'const {} = styled.{}`\n'.format(style_name, tag_name)
+    contents.insert(index, line)
+    line = '`;\n\n'
+    contents.insert(index+1, line)
+    line = '    {},\n'.format(style_name)
+    contents.insert(-1, line)
+
+    with open(file_path, "w") as file:
+        file.writelines(contents)
 
 def get_src_folder_path():
     return os.path.join(base_path, "src")
@@ -87,7 +103,7 @@ def index():
     template = """import React, {{ PureComponent }} from "react";
 import {{ connect }}from "react-redux";
 import {{ actionCreators, selectors }} from "./store";
-import {{}} from "./style";
+import {{ styles as s }} from "./style";
 
 class {class_name} extends PureComponent {{
   render() {{
@@ -122,7 +138,10 @@ export default connect(
 def styled():
     folder_path = get_folder_path()
     file_path = os.path.join(folder_path, "style.js")
-    content = 'import styled from "styled-components";\n\n'
+    content = """import styled from "styled-components";\n
+export const styles = { 
+};
+"""
     with open(file_path, "w") as file:
         file.write(content)
     print(file_path, "is successful.")
@@ -357,16 +376,19 @@ def import_all():
 
         with open(routes_file, "w") as file:
             file.write('import React from "react";\n')
-            file.write('import { BrowserRouter, Route, Switch } from "react-router-dom";\n')
+            file.write(
+                'import { BrowserRouter, Route, Switch } from "react-router-dom";\n')
             for page in pages:
                 line = 'import {} from "./pages/{}";\n'.format(page, page)
                 file.write(line)
             file.write('\n')
             file.writelines(saved)
 
+
 def get_routes(contents):
     for idx, line in enumerate(contents):
-        if line.strip().startswith("class") :
+        if line.strip().startswith("class"):
             return contents[idx:]
+
 
 main()
