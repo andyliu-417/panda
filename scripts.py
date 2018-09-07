@@ -44,37 +44,43 @@ def handle_paths():
         CP_PATH = os.path.join(COMPONENTS_PATH, component_name)
     STORE_PATH = os.path.join(CP_PATH, 'store')
 
+
+def get_all_stores():
+    get_all_pages()
+    get_all_components()
+    return pages + components
+
+
 def get_all_pages():
     for page in os.listdir(PAGES_PATH):
         if os.path.isdir(os.path.join(PAGES_PATH, page)):
             pages.append(page)
-    return pages
 
 
 def get_all_components():
-    components = []
     for component in os.listdir(COMPONENTS_PATH):
         if os.path.isdir(os.path.join(COMPONENTS_PATH, component)):
             components.append(component)
-    return components
 
 
 def handle_generate():
     if o == 'p':
         generate_page()
     elif o == 'c':
+        generate_component()
         pass
 
-def page_index():
-    file_path = os.path.join(CP_PATH, "index.js")
+
+def page_index(file_name, class_name):
+    file_path = os.path.join(CP_PATH, file_name+".js")
     template = """import React, {{ PureComponent }} from "react";
 import {{ connect }}from "react-redux";
 import {{ actionCreators, selectors }} from "./store";
 import {{ }} from "./style";
 
-class {page_name} extends PureComponent {{
+class {class_name} extends PureComponent {{
   render() {{
-    return <div>{page_name}</div>;
+    return <div>{class_name}</div>;
   }}
 }}
 
@@ -89,16 +95,17 @@ const mapDispatchToProps = dispatch => {{
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)({page_name});
+)({class_name});
 
 """
 
     context = {
-        "page_name": page_name
+        "class_name": class_name
     }
     with open(file_path, "w") as file:
         file.write(template.format(**context))
     print(file_path, "is successful.")
+
 
 def page_style():
     file_path = os.path.join(CP_PATH, "style.js")
@@ -106,6 +113,7 @@ def page_style():
     with open(file_path, "w") as file:
         file.write(content)
     print(file_path, "is successful.")
+
 
 def store_index():
     file_path = os.path.join(STORE_PATH, "index.js")
@@ -121,6 +129,7 @@ export { reducer, saga, actionCreators, actionTypes, selectors };
 """
     with open(file_path, "w") as file:
         file.write(template)
+
 
 def store_reducer():
     file_path = os.path.join(STORE_PATH, "reducer.js")
@@ -228,6 +237,7 @@ def store_selector():
     with open(file_path, "w") as file:
         file.write(template.format(**context))
 
+
 def page_store():
     os.makedirs(STORE_PATH)
 
@@ -239,15 +249,127 @@ def page_store():
     store_selector()
     print(STORE_PATH, "is successful.")
 
+
 def generate_page():
-    os.makedirs(CP_PATH)
-    page_index()
-    page_style()
-    page_store()
+    if not os.path.exists(CP_PATH):
+        os.makedirs(CP_PATH)
+        page_index("index", page_name)
+        page_style()
+        page_store()
+        updateCombineStore()
+        import_routers()
+    else:
+        print("page existed")
+
+
+def generate_component():
+    if not os.path.exists(CP_PATH):
+        os.makedirs(CP_PATH)
+        page_index("index", component_name)
+        page_style()
+        page_store()
+        updateCombineStore()
+        export_components()
+    else:
+        page_index(component_name, component_name)
+
+
+def import_routers():
+    routes_file = os.path.join(
+        SRC_PATH, "routes.js")
+
+    with open(routes_file, "r") as file:
+        contents = file.readlines()
+        saved = get_routes(contents)
+
+    with open(routes_file, "w") as file:
+        file.write('import React from "react";\n')
+        file.write(
+            'import { BrowserRouter, Route, Switch } from "react-router-dom";\n')
+        for page in pages:
+            line = 'import {} from "./pages/{}";\n'.format(page, page)
+            file.write(line)
+        file.write('\n')
+        file.writelines(saved)
+
+
+def get_routes(contents):
+    for idx, line in enumerate(contents):
+        if line.strip().startswith("class"):
+            return contents[idx:]
+
+
+def export_components():
+    index_file = os.path.join(COMPONENTS_PATH, "index.js")
+    with open(index_file, "w") as file:
+        for component in components:
+            line = 'import {} from "./{}";\n'.format(component, component)
+            file.write(line)
+        file.write('\n')
+        file.write('export {\n')
+        for component in components:
+            line = '    {},\n'.format(component)
+            file.write(line)
+        file.write('};\n')
+
+
+def updateCombineStore():
+    stores = get_all_stores()
+    updateCombineReducer(stores)
+    updateCombineSaga(stores)
+
+
+def updateCombineReducer(stores):
+    reducer_file = os.path.join(COMBINE_STORE_PATH, "reducer.js")
+    with open(reducer_file, "w") as file:
+        file.write('import { combineReducers } from "redux-immutable";\n')
+        for page in pages:
+            line = 'import {{ reducer as {}Reducer }} from "../{}/{}/store"\n'.format(
+                page, 'pages', page)
+            file.write(line)
+        for component in components:
+            line = 'import {{ reducer as {}Reducer }} from "../{}/{}/store"\n'.format(
+                component, 'components', component)
+            file.write(line)
+
+        file.write('\n')
+
+        file.write('export default combineReducers({\n')
+        for store in stores:
+            line = '  {}: {}Reducer,\n'.format(store, store)
+            file.write(line)
+        file.write("});\n")
+
+
+def updateCombineSaga(stores):
+    saga_file = os.path.join(COMBINE_STORE_PATH, "saga.js")
+    with open(saga_file, "w") as file:
+        file.write('import { fork, all } from "redux-saga/effects";\n')
+        for page in pages:
+            line = 'import {{ saga as {}Saga }} from "../{}/{}/store"\n'.format(
+                page, 'pages', page)
+            file.write(line)
+        for component in components:
+            line = 'import {{ saga as {}Saga }} from "../{}/{}/store"\n'.format(
+                component, 'components', component)
+            file.write(line)
+        file.write('\n')
+        file.write('function* rootSaga(config) {\n')
+        file.write('  yield all([\n')
+
+        for store in stores:
+            line = '    fork({}Saga),\n'.format(store)
+            file.write(line)
+        file.write("  ]);\n")
+        file.write("}\n\n")
+        file.write("export default rootSaga;\n")
+
 
 def makeTree():
     pass
-    
+
+
 handle_parameters()
 handle_paths()
 handle_generate()
+# updateCombineStore()
