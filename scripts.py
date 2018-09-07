@@ -2,24 +2,32 @@ import sys
 import os
 import shutil
 
-tree = {}
 pages = []
 components = []
 
 
 def handle_parameters():
-    global base_path, v, o, page_name, component_name, cp_name, style_name, tag_name
+    global base_path, SRC_PATH, COMBINE_STORE_PATH, PAGES_PATH, COMPONENTS_PATH, v, o, page_name, component_name, cp_name, class_name, class_file_name, style_name, tag_name
     base_path = sys.argv[1]
+    SRC_PATH = os.path.join(base_path, 'src')
+    COMBINE_STORE_PATH = os.path.join(SRC_PATH, 'store')
+    PAGES_PATH = os.path.join(SRC_PATH, 'pages')
+    COMPONENTS_PATH = os.path.join(SRC_PATH, 'components')
+
     v = sys.argv[2][0]
     o = sys.argv[2][-1]
     cp = sys.argv[3]
     (page_name, component_name) = extract_page_component(cp)
     cp_name = page_name if page_name else component_name
+    class_name = component_name if component_name else page_name
+    class_file_name = "index" if cp_name == class_name else class_name
     if len(sys.argv) > 4:
         s = sys.argv[4]
         style_name = (
             component_name if component_name else page_name) + s.capitalize()
         tag_name = sys.argv[5]
+
+    print("starting to create {}/{}...".format(cp_name, class_name))
 
 
 def extract_page_component(cp):
@@ -30,14 +38,17 @@ def extract_page_component(cp):
         return (cp.capitalize(), "")
     elif o == 'c':
         return ("", cp.capitalize())
+    elif o == 's':
+        get_all_pages()
+        if cp.capitalize() in pages:
+            return (cp.capitalize(), "")
+        get_all_components()
+        if cp.capitalize() in components:
+            return ("", cp.capitalize())
 
 
 def handle_paths():
-    global SRC_PATH, PAGES_PATH, COMPONENTS_PATH, CP_PATH, STORE_PATH, COMBINE_STORE_PATH
-    SRC_PATH = os.path.join(base_path, 'src')
-    COMBINE_STORE_PATH = os.path.join(SRC_PATH, 'store')
-    PAGES_PATH = os.path.join(SRC_PATH, 'pages')
-    COMPONENTS_PATH = os.path.join(SRC_PATH, 'components')
+    global CP_PATH, STORE_PATH
     if page_name:
         CP_PATH = os.path.join(PAGES_PATH, page_name)
     else:
@@ -63,16 +74,79 @@ def get_all_components():
             components.append(component)
 
 
+def generate_style():
+    style_path = os.path.join(CP_PATH, "style.js")
+    style(style_path)
+
+
+def style(style_path):
+    with open(style_path, "a") as file:
+        template = '''export const {style_name} = styled.{tag_name}`\n
+`;\n\n'''
+        context = {
+            "style_name": style_name,
+            "tag_name": tag_name
+        }
+        file.write(template.format(**context))
+
+    styles = get_styles(style_path)
+
+    file_path = os.path.join(CP_PATH, class_file_name + ".js")
+    contents = []
+    with open(file_path, "r") as file:
+        contents = file.readlines()
+
+    style_line = ''
+    for idx, line in enumerate(contents):
+        if "./style" in line.strip():
+            if line.strip().startswith('import'):
+                style_line = 'import { '
+                style_line += ', '.join(styles)
+                style_line += ' } from "./style";\n'
+                contents[idx] = style_line
+            else:
+                contents[idx-1] = contents[idx-1][:-1]+',\n'
+                contents.insert(idx, '  '+styles[-1]+',\n')
+            break
+
+    with open(file_path, "w") as file:
+        file.writelines(contents)
+
+
+def get_styles(style_path):
+    styles = []
+
+    with open(style_path, "r") as file:
+        contents = file.readlines()
+    for line in contents:
+        if line.strip().startswith("export") and class_name in line.strip():
+            words = line.split(' ')
+            styles.append(words[2])
+    return styles
+
+
 def handle_generate():
     if o == 'p':
         generate_page()
+        print("created page {} successfully".format(class_name))
     elif o == 'c':
         generate_component()
-        pass
+        print("created component {} successfully".format(class_name))
+    elif o == 's':
+        generate_style()
+        print("created {} successfully".format(style_name))
 
 
-def page_index(file_name, class_name):
-    file_path = os.path.join(CP_PATH, file_name+".js")
+def handle_remove():
+    shutil.rmtree(CP_PATH)
+    update_combine_Store()
+    import_routers()
+    export_components()
+
+
+
+def page_index():
+    file_path = os.path.join(CP_PATH, class_file_name+".js")
     template = """import React, {{ PureComponent }} from "react";
 import {{ connect }}from "react-redux";
 import {{ actionCreators, selectors }} from "./store";
@@ -104,7 +178,7 @@ export default connect(
     }
     with open(file_path, "w") as file:
         file.write(template.format(**context))
-    print(file_path, "is successful.")
+    print("index in {} is created successfully.".format(class_name))
 
 
 def page_style():
@@ -112,7 +186,7 @@ def page_style():
     content = 'import styled from "styled-components";\n\n'
     with open(file_path, "w") as file:
         file.write(content)
-    print(file_path, "is successful.")
+    print("style in {} is created successfully.".format(class_name))
 
 
 def store_index():
@@ -247,31 +321,50 @@ def page_store():
     store_creator()
     store_type()
     store_selector()
-    print(STORE_PATH, "is successful.")
+    print("store in {} is created successfully.".format(class_name))
 
 
 def generate_page():
     if not os.path.exists(CP_PATH):
         os.makedirs(CP_PATH)
-        page_index("index", page_name)
+        page_index()
         page_style()
         page_store()
-        updateCombineStore()
+        update_combine_Store()
         import_routers()
     else:
-        print("page existed")
+        print("page {} existed already.".format(class_name))
+
+
+def import_index():
+    index_file = os.path.join(CP_PATH, "index.js")
+    (index, contents) = find_line_idx_in_file(index_file, "./style")
+    line = 'import {} from "./{}"\n'.format(class_name, class_name)
+    contents.insert(index+1, line)
+    with open(index_file, "w") as file:
+        file.writelines(contents)
+
+
+def find_line_idx_in_file(file_name, keyword):
+    contents = []
+    with open(file_name, "r") as file:
+        contents = file.readlines()
+    for idx, line in enumerate(contents):
+        if keyword in line.strip():
+            return (idx, contents)
 
 
 def generate_component():
     if not os.path.exists(CP_PATH):
         os.makedirs(CP_PATH)
-        page_index("index", component_name)
+        page_index()
         page_style()
         page_store()
-        updateCombineStore()
+        update_combine_Store()
         export_components()
     else:
-        page_index(component_name, component_name)
+        page_index()
+        import_index()
 
 
 def import_routers():
@@ -291,6 +384,8 @@ def import_routers():
             file.write(line)
         file.write('\n')
         file.writelines(saved)
+
+    print("updated routes successfully.")
 
 
 def get_routes(contents):
@@ -313,10 +408,11 @@ def export_components():
         file.write('};\n')
 
 
-def updateCombineStore():
+def update_combine_Store():
     stores = get_all_stores()
     updateCombineReducer(stores)
     updateCombineSaga(stores)
+    print("updated store successfully.")
 
 
 def updateCombineReducer(stores):
@@ -365,11 +461,16 @@ def updateCombineSaga(stores):
         file.write("export default rootSaga;\n")
 
 
-def makeTree():
-    pass
+def main():
+    try:
+        handle_parameters()
+        handle_paths()
+        if v == 'g':
+            handle_generate()
+        elif v == 'r':
+            handle_remove()
+    except Exception as e:
+        print(e)
 
 
-handle_parameters()
-handle_paths()
-handle_generate()
-# updateCombineStore()
+main()

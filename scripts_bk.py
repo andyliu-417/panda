@@ -59,17 +59,16 @@ def generate_style():
             "tag_name": tag_name
         }
         file.write(template.format(**context))
-    
+
     with open(file_path, "r") as file:
         contents = file.readlines()
-    
-    styles = get_styles(contents)
 
+    styles = get_styles(contents)
 
     file_path = os.path.join(folder_path, "index.js")
     with open(file_path, "r") as file:
         contents = file.readlines()
-    
+
     style_line = ''
     for idx, line in enumerate(contents):
         if "./style" in line.strip():
@@ -83,23 +82,27 @@ def generate_style():
                 contents.insert(idx, '  '+styles[-1]+',\n')
                 print(contents[idx])
             break
-    
+
     with open(file_path, "w") as file:
         file.writelines(contents)
+
 
 def get_styles(contents):
     styles = []
     for line in contents:
         if line.strip().startswith("export"):
-            words = line.split(' ');
+            words = line.split(' ')
             styles.append(words[2])
     return styles
+
 
 def get_src_folder_path():
     return os.path.join(base_path, "src")
 
+
 def get_store_folder_path():
     return os.path.join(get_src_folder_path(), "store")
+
 
 def get_folder_path():
     if folder == 'c':
@@ -111,11 +114,14 @@ def get_folder_path():
         folder_name = "src/" + stores[class_name] + "/" + class_name
     return os.path.join(base_path, folder_name)
 
+
 def get_components_folder_path():
     return os.path.join(base_path, "src/components/")
 
+
 def get_pages_folder_path():
     return os.path.join(base_path, "src/pages/")
+
 
 def index():
     folder_path = get_folder_path()
@@ -157,6 +163,7 @@ export default connect(
         file.write(template.format(**context))
     print(file_path, "is successful.")
 
+
 def styled():
     folder_path = get_folder_path()
     file_path = os.path.join(folder_path, "style.js")
@@ -164,6 +171,7 @@ def styled():
     with open(file_path, "w") as file:
         file.write(content)
     print(file_path, "is successful.")
+
 
 def store():
     folder_path = get_folder_path()
