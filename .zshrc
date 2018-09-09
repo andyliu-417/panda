@@ -94,7 +94,7 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
 
-alias repo='cd ~;cd repos'
+alias repo='cd ~;cd repos;'
 alias hp='cd ~;cd repos/hitplay-care-monitoring'
 alias hppull='hp&&git pull origin master'
 alias care='cd ~;cd repos/hitplay-care-monitoring/packages/hitplay-care-user-dashboard'
@@ -133,9 +133,8 @@ function gBranch() {
 
 alias hplerna='hp&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm -rf&&npm cache clean --force&&sleep 3&&lerna bootstrap'
 
-alias panda='panda $1 $2'
+alias panda='panda'
 function panda() {
-  # python3 ~/.scripts.py $(pwd) $1 $2 $3 $4
-  python3 ~/repos/panda/scripts.py $(pwd) $1 $2 $3 $4
-
+  python3 ~/.scripts.py $(pwd) $1 $2 $3 $4
+  # python3 ~/repos/panda/scripts.py $(pwd) $1 $2 $3 $4
 }
