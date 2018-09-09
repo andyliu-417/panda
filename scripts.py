@@ -212,7 +212,7 @@ def store_reducer():
 import { fromJS } from "immutable";
 
 const defaultState = fromJS({
-  foo: "foo",
+  // foo: "foo",
 });
 
 const reducer_handlers = {
