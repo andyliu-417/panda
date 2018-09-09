@@ -211,18 +211,19 @@ def store_reducer():
     template = """import * as actionTypes from "./actionType";
 import { fromJS } from "immutable";
 
-const defaultState = fromJS({});
+const defaultState = fromJS({
+  foo: "foo",
+});
 
 const reducer_handlers = {
   // [actionTypes.FOO]: (state, action) => {
-  //   console.log("reducer:", action.type);
   //   return state.set("key", val);
   // }
 };
 
 export default (state = defaultState, action) => {
   if (reducer_handlers.hasOwnProperty(action.type)) {
-    console.log("action type: ", action.type);
+    console.log("reducer", action);
     return reducer_handlers[action.type](state, action);
   }
   return state;
@@ -242,7 +243,6 @@ import * as actionTypes from "./actionType";
 const saga_handlers = {
   // [actionTypes.FOO]: function*(action) {
   //   try {
-  //     console.log("saga:", action);
   //     yield put({});
   //   } catch (e) {
   //     console.log(e);
@@ -257,6 +257,7 @@ function* saga() {
         return saga_handlers.hasOwnProperty(action.type) ? action.type : "";
       },
       action => {
+        console.log("saga", action);
         return saga_handlers[action.type](action);
       }
     )
@@ -290,7 +291,7 @@ def store_type():
     template = """// export const FOO = "{cp_name}_foo";
 """
     context = {
-        "cp_name": cp_name
+        "cp_name": cp_name.lower()
     }
     with open(file_path, "w") as file:
         file.write(template.format(**context))
