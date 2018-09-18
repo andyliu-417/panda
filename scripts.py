@@ -4,8 +4,10 @@ import shutil
 
 pages = []
 components = []
-REMOVE_FILES = ['.gitignore', '.zshrc', 'scripts.py', '.git', 'test_scripts']
+REMOVE_FILES = ['.gitignore', '.zshrc', 'scripts.py',
+                '.git', 'test_scripts', 'README.md', 'LICENSE']
 isNew = False
+
 
 def copytree(src, dst):
     for item in os.listdir(src):
@@ -25,11 +27,13 @@ def handle_parameters():
         PROJECT_PATH = os.path.join(sys.argv[1], sys.argv[3])
         PANDA_PATH = "/Users/andy/repos/panda"
         print(PANDA_PATH)
-        os.mkdir(PROJECT_PATH)
+        if not os.path.exists(PROJECT_PATH):
+            os.mkdir(PROJECT_PATH)
         copytree(PANDA_PATH, PROJECT_PATH)
         for file in REMOVE_FILES:
             file_path = os.path.join(PROJECT_PATH, file)
-            os.path.exists(file_path) and os.remove(file_path) if os.path.isfile(file_path) else shutil.rmtree(file_path)
+            os.path.exists(file_path) and os.remove(file_path) if os.path.isfile(
+                file_path) else shutil.rmtree(file_path)
 
     else:
         global base_path, SRC_PATH, COMBINE_STORE_PATH, PAGES_PATH, COMPONENTS_PATH, v, o, page_name, component_name, cp_name, class_name, class_file_name, style_name, tag_name
