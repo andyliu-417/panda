@@ -4,30 +4,55 @@ import shutil
 
 pages = []
 components = []
+REMOVE_FILES = ['.gitignore', '.zshrc', 'scripts.py', '.git', 'test_scripts']
+isNew = False
+
+def copytree(src, dst):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d)
+        else:
+            shutil.copy2(s, d)
 
 
 def handle_parameters():
-    global base_path, SRC_PATH, COMBINE_STORE_PATH, PAGES_PATH, COMPONENTS_PATH, v, o, page_name, component_name, cp_name, class_name, class_file_name, style_name, tag_name
-    base_path = sys.argv[1]
-    SRC_PATH = os.path.join(base_path, 'src')
-    COMBINE_STORE_PATH = os.path.join(SRC_PATH, 'store')
-    PAGES_PATH = os.path.join(SRC_PATH, 'pages')
-    COMPONENTS_PATH = os.path.join(SRC_PATH, 'components')
+    global isNew
+    if sys.argv[2] == 'new':
+        isNew = True
+        global PROJECT_PATH, PANDA_PATH
+        PROJECT_PATH = os.path.join(sys.argv[1], sys.argv[3])
+        PANDA_PATH = "/Users/andy/repos/panda"
+        print(PANDA_PATH)
+        os.mkdir(PROJECT_PATH)
+        copytree(PANDA_PATH, PROJECT_PATH)
+        for file in REMOVE_FILES:
+            file_path = os.path.join(PROJECT_PATH, file)
+            os.path.exists(file_path) and os.remove(file_path) if os.path.isfile(file_path) else shutil.rmtree(file_path)
 
-    v = sys.argv[2][0]
-    o = sys.argv[2][-1]
-    cp = sys.argv[3]
-    (page_name, component_name) = extract_page_component(cp)
-    cp_name = page_name if page_name else component_name
-    class_name = component_name if component_name else page_name
-    class_file_name = "index" if cp_name == class_name else class_name
-    if len(sys.argv) > 4:
-        s = sys.argv[4]
-        style_name = (
-            component_name if component_name else page_name) + s.capitalize()
-        tag_name = sys.argv[5]
+    else:
+        global base_path, SRC_PATH, COMBINE_STORE_PATH, PAGES_PATH, COMPONENTS_PATH, v, o, page_name, component_name, cp_name, class_name, class_file_name, style_name, tag_name
+        base_path = sys.argv[1]
+        SRC_PATH = os.path.join(base_path, 'src')
+        COMBINE_STORE_PATH = os.path.join(SRC_PATH, 'store')
+        PAGES_PATH = os.path.join(SRC_PATH, 'pages')
+        COMPONENTS_PATH = os.path.join(SRC_PATH, 'components')
 
-    print("starting to create {}/{}...".format(cp_name, class_name))
+        v = sys.argv[2][0]
+        o = sys.argv[2][-1]
+        cp = sys.argv[3]
+        (page_name, component_name) = extract_page_component(cp)
+        cp_name = page_name if page_name else component_name
+        class_name = component_name if component_name else page_name
+        class_file_name = "index" if cp_name == class_name else class_name
+        if len(sys.argv) > 4:
+            s = sys.argv[4]
+            style_name = (
+                component_name if component_name else page_name) + s.capitalize()
+            tag_name = sys.argv[5]
+
+        print("starting to create {}/{}...".format(cp_name, class_name))
 
 
 def extract_page_component(cp):
@@ -142,7 +167,6 @@ def handle_remove():
     update_combine_Store()
     import_routers()
     export_components()
-
 
 
 def page_index():
@@ -465,11 +489,12 @@ def updateCombineSaga(stores):
 def main():
     try:
         handle_parameters()
-        handle_paths()
-        if v == 'g':
-            handle_generate()
-        elif v == 'r':
-            handle_remove()
+        if not isNew:
+            handle_paths()
+            if v == 'g':
+                handle_generate()
+            elif v == 'r':
+                handle_remove()
     except Exception as e:
         print(e)
 
