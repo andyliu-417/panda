@@ -4,8 +4,7 @@ import shutil
 
 pages = []
 components = []
-REMOVE_FILES = ['.gitignore', '.zshrc', 'scripts.py',
-                '.git', 'test_scripts', 'README.md', 'LICENSE']
+REMOVE_FILES = ['.zshrc', 'scripts.py', 'test_scripts']
 isNew = False
 
 
@@ -13,6 +12,9 @@ def copytree(src, dst):
     for item in os.listdir(src):
         s = os.path.join(src, item)
         d = os.path.join(dst, item)
+        if os.path.exists(d):
+            continue
+
         if os.path.isdir(s):
             shutil.copytree(s, d)
         else:
