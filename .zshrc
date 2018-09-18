@@ -133,8 +133,14 @@ function gBranch() {
 
 alias hplerna='hp&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm -rf&&npm cache clean --force&&sleep 3&&lerna bootstrap'
 
-alias panda='panda'
+alias panda='panda $1 $2 $3 $4'
 function panda() {
-  python3 ~/.scripts.py $(pwd) $1 $2 $3 $4
-  # python3 ~/repos/panda/scripts.py $(pwd) $1 $2 $3 $4
+  # python3 ~/.scripts.py $(pwd) $1 $2 $3 $4
+  python3 ~/repos/panda/scripts.py $(pwd) $1 $2 $3 $4
+
+  if [ "$1" = "new" ]; then
+    cd $2;
+    npm i
+    npm start
+  fi
 }
