@@ -16,7 +16,7 @@ def copytree(src, dst):
         d = os.path.join(dst, item)
         if os.path.exists(d) or item in IGNORE_FILES:
             continue
-
+        print(d)
         if os.path.isdir(s):
             shutil.copytree(s, d)
         else:
@@ -24,13 +24,13 @@ def copytree(src, dst):
 
 
 def change_project_names():
+    print("package name: {}".format(PROJECT_NAME))
     file_path = os.path.join(PROJECT_PATH, 'package.json')
     with open(file_path) as f:
         data = json.load(f)
     data["name"] = PROJECT_NAME
     with open(file_path, 'w') as f:
         json.dump(data, f)
-    
 
 
 def handle_parameters():
@@ -46,6 +46,7 @@ def handle_parameters():
             os.mkdir(PROJECT_PATH)
         copytree(PANDA_PATH, PROJECT_PATH)
         change_project_names()
+        print("created project {} successfully".format(PROJECT_NAME))
 
     else:
         global base_path, SRC_PATH, COMBINE_STORE_PATH, PAGES_PATH, COMPONENTS_PATH, v, o, page_name, component_name, cp_name, class_name, class_file_name, style_name, tag_name

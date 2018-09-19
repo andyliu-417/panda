@@ -133,13 +133,18 @@ function gBranch() {
 
 alias hplerna='hp&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm -rf&&npm cache clean --force&&sleep 3&&lerna bootstrap'
 
+
 alias panda='panda $1 $2 $3 $4'
 function panda() {
-  # python3 ~/.scripts.py $(pwd) $1 $2 $3 $4
-  python3 ~/repos/panda/scripts.py $(pwd) $1 $2 $3 $4
+  git clone https://github.com/andyliu-417/$2.git
+  python3 ~/.scripts.py $(pwd) $1 $2 $3 $4
+  # python3 ~/repos/panda/scripts.py $(pwd) $1 $2 $3 $4
 
   if [ "$1" = "new" ]; then
     cd $2;
+    git add .
+    git commit -m "panda init"
+    git push origin master
     npm i
     npm start
   fi
