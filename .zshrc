@@ -142,10 +142,10 @@ function panda() {
 
   if [ "$1" = "new" ]; then
     cd $2;
+    npm i
     git add .
     git commit -m "panda init"
     git push origin master
-    npm i
     npm start
   fi
 }
