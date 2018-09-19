@@ -1,10 +1,12 @@
 import sys
 import os
 import shutil
+import json
 
 pages = []
 components = []
-REMOVE_FILES = ['.zshrc', 'scripts.py', 'test_scripts']
+IGNORE_FILES = ['.zshrc', 'scripts.py', 'test_scripts',
+                '.git', '.gitignore', 'LICENSE', 'README.md', 'package-lock.json']
 isNew = False
 
 
@@ -12,7 +14,7 @@ def copytree(src, dst):
     for item in os.listdir(src):
         s = os.path.join(src, item)
         d = os.path.join(dst, item)
-        if os.path.exists(d):
+        if os.path.exists(d) or item in IGNORE_FILES:
             continue
 
         if os.path.isdir(s):
@@ -21,21 +23,29 @@ def copytree(src, dst):
             shutil.copy2(s, d)
 
 
+def change_project_names():
+    file_path = os.path.join(PROJECT_PATH, 'package.json')
+    with open(file_path) as f:
+        data = json.load(f)
+    data["name"] = PROJECT_NAME
+    with open(file_path, 'w') as f:
+        json.dump(data, f)
+    
+
+
 def handle_parameters():
     global isNew
     if sys.argv[2] == 'new':
         isNew = True
-        global PROJECT_PATH, PANDA_PATH
+        global PROJECT_PATH, PANDA_PATH, PROJECT_NAME
+        PROJECT_NAME = sys.argv[3]
         PROJECT_PATH = os.path.join(sys.argv[1], sys.argv[3])
         PANDA_PATH = "/Users/andy/repos/panda"
-        print(PANDA_PATH)
+        print("starting to create new project {}".format(PROJECT_PATH))
         if not os.path.exists(PROJECT_PATH):
             os.mkdir(PROJECT_PATH)
         copytree(PANDA_PATH, PROJECT_PATH)
-        for file in REMOVE_FILES:
-            file_path = os.path.join(PROJECT_PATH, file)
-            os.path.exists(file_path) and os.remove(file_path) if os.path.isfile(
-                file_path) else shutil.rmtree(file_path)
+        change_project_names()
 
     else:
         global base_path, SRC_PATH, COMBINE_STORE_PATH, PAGES_PATH, COMPONENTS_PATH, v, o, page_name, component_name, cp_name, class_name, class_file_name, style_name, tag_name
