@@ -136,11 +136,11 @@ alias hplerna='hp&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm
 
 alias panda='panda $1 $2 $3 $4'
 function panda() {
-  git clone https://github.com/andyliu-417/$2.git
   python3 ~/.scripts.py $(pwd) $1 $2 $3 $4
   # python3 ~/repos/panda/scripts.py $(pwd) $1 $2 $3 $4
 
   if [ "$1" = "new" ]; then
+    git clone https://github.com/andyliu-417/$2.git
     cd $2;
     npm i
     git add .
