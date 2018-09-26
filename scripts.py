@@ -424,7 +424,7 @@ def import_routers():
         for page in pages:
             line = 'import {} from "./pages/{}";\n'.format(page, page)
             file.write(line)
-        file.write('\n')
+        # file.write('\n')
         file.writelines(saved)
 
     print("updated routes successfully.")
@@ -432,7 +432,8 @@ def import_routers():
 
 def get_routes(contents):
     for idx, line in enumerate(contents):
-        if line.strip().startswith("class"):
+        # if line.strip().startswith("class"):
+        if "components" in line.strip():
             return contents[idx:]
 
 
