@@ -432,8 +432,7 @@ def import_routers():
 
 def get_routes(contents):
     for idx, line in enumerate(contents):
-        # if line.strip().startswith("class"):
-        if "components" in line.strip():
+        if "components" in line.strip() or line.strip().startswith("class"):
             return contents[idx:]
 
 
