@@ -120,9 +120,9 @@ function gSprint() {
 	git push --set-upstream origin $bName
 }
 
-alias task='gTask $2'
+alias task='gTask $1'
 function gTask() {
-	bName="PIVOT-"$2
+	bName="PIVOT-"$1
 	git checkout -b $bName;
 }
 
