@@ -112,16 +112,24 @@ alias shared='share&&npm run dev;'
 
 alias master='care&&git checkout master'
 
-alias task='master&&gCheckout $1'
-function gCheckout() {
+alias sprint='master&&gSprint $1'
+function gSprint() {
 	git pull origin master
-	bName="feature/CARE-"$1
+	bName="SPRINT-"$1
+	git checkout -b $bName;
+}
+
+alias task='gTask $1 $2'
+function gTask() {
+	sName="SPRINT-"$1
+	git checkout $bName;
+	bName="feature/CARE-"$2
 	git checkout -b $bName;
 }
 
 alias done='master&&gDone $1'
 function gDone() {
-	bName="feature/CARE-"$1
+	sName="SPRINT-"$1
 	git branch -D $bName;
 }
 
