@@ -120,23 +120,21 @@ function gSprint() {
 	git push --set-upstream origin $bName
 }
 
-alias task='gTask $1 $2'
+alias task='gTask $2'
 function gTask() {
-	sName="SPRINT-"$1
-	git checkout $bName;
-	bName="feature/CARE-"$2
+	bName="PIVOT-"$2
 	git checkout -b $bName;
 }
 
-alias done='master&&gDone $1'
-function gDone() {
-	sName="SPRINT-"$1
-	git branch -D $bName;
+alias gosprint='goSprint $1'
+function goSprint() {
+	bName="SPRINT-"$1
+	git checkout $bName;
 }
 
-alias gb='gBranch $1'
-function gBranch() {
-	bName="feature/CARE-"$1
+alias gotask='goTask $1'
+function goTask() {
+	bName="PIVOT-"$1
 	git checkout $bName;
 }
 
