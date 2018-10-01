@@ -117,6 +117,7 @@ function gSprint() {
 	git pull origin master
 	bName="SPRINT-"$1
 	git checkout -b $bName;
+	git push --set-upstream origin $bName
 }
 
 alias task='gTask $1 $2'
@@ -133,7 +134,7 @@ function gDone() {
 	git branch -D $bName;
 }
 
-alias gb='master&&gBranch $1'
+alias gb='gBranch $1'
 function gBranch() {
 	bName="feature/CARE-"$1
 	git checkout $bName;
