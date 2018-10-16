@@ -120,16 +120,13 @@ function gSprint() {
 	git push --set-upstream origin $bName
 }
 
+
 alias task='gTask $1'
 function gTask() {
+	git checkout STAGING
+	git pull origin STAGING
 	bName="PIVOT-"$1
 	git checkout -b $bName;
-}
-
-alias gosprint='goSprint $1'
-function goSprint() {
-	bName="SPRINT-"$1
-	git checkout $bName;
 }
 
 alias gotask='goTask $1'
