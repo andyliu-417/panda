@@ -95,13 +95,12 @@ source $ZSH/oh-my-zsh.sh
 alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
 
 alias repo='cd ~;cd repos;'
-alias hp='cd ~;cd repos/hitplay-care-monitoring'
-alias hppull='hp&&git pull origin master'
-alias care='cd ~;cd repos/hitplay-care-monitoring/packages/hitplay-care-user-dashboard'
-alias admin='cd ~;cd repos/hitplay-care-monitoring/packages/hitplay-care-admin-dashboard'
-alias careb='cd ~;cd repos/hitplay-care-monitoring/packages/backend-user-dashboard-api'
-alias adminb='cd ~;cd repos/hitplay-care-monitoring/packages/backend-admin-dashboard-api'
-alias share='cd ~;cd repos/hitplay-care-monitoring/packages/hitplay-care-shared'
+alias pivot='cd ~;cd repos/pivot'
+alias care='cd ~;cd repos/pivot/packages/hitplay-care-user-dashboard'
+alias admin='cd ~;cd repos/pivot/packages/hitplay-care-admin-dashboard'
+alias careb='cd ~;cd repos/pivot/packages/backend-user-dashboard-api'
+alias adminb='cd ~;cd repos/pivot/packages/backend-admin-dashboard-api'
+alias share='cd ~;cd repos/pivot/packages/hitplay-care-shared'
 
 alias cares='care&&npm start;'
 alias admins='admin&&npm start;'
@@ -110,21 +109,10 @@ alias adminbd='adminb&&sls deploy;'
 alias shareb='share&&npm run build;'
 alias shared='share&&npm run dev;'
 
-alias master='care&&git checkout master'
+alias master='pivot&&git checkout master&&git pull origin master'
 
-alias sprint='master&&gSprint $1'
-function gSprint() {
-	git pull origin master
-	bName="SPRINT-"$1
-	git checkout -b $bName;
-	git push --set-upstream origin $bName
-}
-
-
-alias task='gTask $1'
+alias task='master&&gTask $1'
 function gTask() {
-	git checkout STAGING
-	git pull origin STAGING
 	bName="PIVOT-"$1
 	git checkout -b $bName;
 }
@@ -135,7 +123,7 @@ function goTask() {
 	git checkout $bName;
 }
 
-alias hplerna='hp&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm -rf&&npm cache clean --force&&sleep 3&&lerna bootstrap'
+alias pivotlerna='pivot&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm -rf&&npm cache clean --force&&lerna bootstrap'
 
 
 alias panda='panda $1 $2 $3 $4'
