@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/andyjunxi/.oh-my-zsh
+export ZSH=/Users/andy/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -125,8 +125,8 @@ function goTask() {
 
 alias pivotlerna='pivot&&lerna clean --yes&&find ./ -name "package-lock.json"|xargs rm -rf&&npm cache clean --force&&lerna bootstrap'
 
-
 alias panda='panda $1 $2 $3 $4'
+
 function panda() {
   if [ "$1" = "new" ]; then
     git clone https://github.com/andyliu-417/$2.git
